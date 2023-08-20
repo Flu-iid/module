@@ -24,24 +24,38 @@ class ProgressBar:
     def simple(self, func):
         """
         Simple ProgressBar covering fill scale of terminal width.
+        recieves a sequence from function.
+        best to use for known length sequences!!!
         """
         functools.wraps(func)
 
         def wrapper(*args, **kwargs):
-            pctg = func(*args, **kwargs)
-            col, row = os.get_terminal_size()
-            success_width = int(pctg*col)
-            result_line = ("*"*success_width).ljust(col, "-")
-            print(result_line, end="\r")
+            try:
+                func_sequence = list(func(*args, **kwargs))
+                total = len(func_sequence)
+            except:
+                print("ERROR > bad sequence given")
+
+            for i, e in enumerate(func_sequence):
+                col, row = os.get_terminal_size()
+                show = f"{i, e} > "
+                bar_length = col - len(show)
+                completition = int((i+1)/total*bar_length)
+                print(show, ("*"*completition).ljust(bar_length, "-"),
+                      sep="", end="\r")
+            print("Done!")
+
         return wrapper
 
+    # add function for simpl wait and seperated total length for generators
 
-n = 1*10**5
-r = ProgressBar()
 
-for i in range(n):
+if __name__ == "__main__":
+    n = 1*10**5
+    r = ProgressBar()
+
     @r.simple
-    def p_line(i, n):
-        return i/n
+    def p(n):
+        return range(n)
 
-    p_line(i, n)
+    p(10**5)
