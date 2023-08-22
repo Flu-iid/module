@@ -36,7 +36,7 @@ op = webdriver.ChromeOptions()
 op.add_experimental_option("prefs", {"download.default_directory": save_path})
 # op.add_argument("headless")
 driver = webdriver.Chrome(
-    "/home/flu/.web_driver/chromedriver-linux64/chromedriver")
+    "/home/flu/.web_driver/chromedriver-linux64/chromedriver", options=op)
 driver.get(
     "https://api.y2convert.net/api/single/mp3?url=https://youtu.be/n0ciQf4HDxg")
 
@@ -58,18 +58,26 @@ try:
                 e2.click()
                 download_name = driver.find_element(
                     by=By.TAG_NAME, value="h2").text
-                print(download_name)
-                while True:
-                    sep = download_name.rfind("-")
-                    size = download_name[sep:]
-                    download_name = download_name[:sep].strip()
-                    download_name = download_name.translate(
-                        str.maketrans(" ", " ", punctuation))
+                sep = download_name.rfind("-")
+                size = download_name[sep:]
+                download_name = download_name[:sep].strip()
+                t = str.maketrans(" ", " ", punctuation)
+                download_name = download_name.translate(t)
+                print("download-search ", download_name)
+                end_flag = False
+                while not end_flag:
                     for item in os.listdir(save_path):
-                        if all([i.strip() for i in download_name.split()]) in [i.strip() for i in item.split()]:
+                        item = item[:item.rfind(".")]
+                        item = item.translate(t)
+                        # print("item: ", item, "\n",
+                        #       "download_name: ", download_name)
+                        origin = [i.strip() for i in download_name.split()]
+                        des = [i.strip() for i in item.split()]
+                        print(origin, "\n", des, "<")
+                        if origin == des:
                             print(f"Downloaded > {save_path}")
+                            end_flag = True
                             driver.quit()
-                            break
                     sleep(3)
             else:
                 print("Download> PageError")
