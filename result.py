@@ -1,5 +1,6 @@
 import functools
 import os
+import slp
 
 """
 decorator classes for showing different function statistics
